@@ -8,7 +8,7 @@ $link = mysqli_connect($host, $user, $password, $db);
 if (!$link) {
     echo "فشل الاتصال بقاعدة البيانات: " . mysqli_connect_error();
 } else {
-    mysqli_set_charset($link, "utf8mb4");
+
     /////////////////////////////  عشان القائمة المنسدلة حق المواد  /////////////////////////////////////
     $query_courses = "SELECT course_id, course_name FROM courses ORDER BY course_name ASC";
     $result_courses = mysqli_query($link, $query_courses);
