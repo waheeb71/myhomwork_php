@@ -1,44 +1,48 @@
 <?php
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "cyber_code";
-$courses = [];
-$link = mysqli_connect($host, $user, $password, $db);
-if (!$link) {
+
+$h = "localhost";
+$u = "root";
+$p = ""; 
+$d = "cyber_code"; 
+$cs = [];
+$l = mysqli_connect($h, $u, $p, $d); 
+
+if (!$l) {
     echo "فشل الاتصال بقاعدة البيانات: " . mysqli_connect_error();
 } else {
 
-    /////////////////////////////  عشان القائمة المنسدلة حق المواد  /////////////////////////////////////
-    $query_courses = "SELECT course_id, course_name FROM courses ORDER BY course_name ASC";
-    $result_courses = mysqli_query($link, $query_courses);
-    if ($result_courses) {
-        while ($row = mysqli_fetch_assoc($result_courses)) {
-            $courses[] = $row;
+    /////////////////////////////  للقائمة المنسدلة للمواد  /////////////////////////////////////
+    $qc = "SELECT course_id, course_name FROM courses ORDER BY course_name ASC"; // query_courses
+    $rc = mysqli_query($l, $qc); // result_courses
+    if ($rc) {
+        while ($r = mysqli_fetch_assoc($rc)) { // row
+            $cs[] = $r;
         }
-        mysqli_free_result($result_courses);
+        mysqli_free_result($rc);
     }
 
     /////////////////////////////////////////////////////////////////
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $student_name = isset($_POST['student_name']) ? htmlspecialchars(trim($_POST['student_name'])) : '';
-        $selected_course_id = isset($_POST['course_id']) ? filter_var(trim($_POST['course_id']), FILTER_VALIDATE_INT) : false;
-        $grade = isset($_POST['grade']) ? filter_var(trim($_POST['grade']), FILTER_VALIDATE_INT) : false;
-        if (empty($student_name) || $selected_course_id === false || $grade === false) {
+        // student_name -> sn, selected_course_id -> cid, grade -> g
+        $sn = isset($_POST['student_name']) ? htmlspecialchars(trim($_POST['student_name'])) : '';
+        $cid = isset($_POST['course_id']) ? filter_var(trim($_POST['course_id']), FILTER_VALIDATE_INT) : false;
+        $g = isset($_POST['grade']) ? filter_var(trim($_POST['grade']), FILTER_VALIDATE_INT) : false;
+
+        if (empty($sn) || $cid === false || $g === false) {
             echo "<div style='color:white; background-color:red; padding:10px;'>يرجى ملء جميع الحقول بشكل صحيح.</div>";
         } else {
-            $sql = "INSERT INTO stud_course (student_name, course_id, grade) VALUES (?, ?, ?)";
-            $stmt = mysqli_prepare($link, $sql);
-            if ($stmt) {
-                mysqli_stmt_bind_param($stmt, "sii", $student_name, $selected_course_id, $grade);
+            $q = "INSERT INTO stud_course (student_name, course_id, grade) VALUES (?, ?, ?)"; // sql query
+            $s = mysqli_prepare($l, $q);
+            if ($s) {
+                mysqli_stmt_bind_param($s, "sii", $sn, $cid, $g);
 
-                if (mysqli_stmt_execute($stmt)) {
+                if (mysqli_stmt_execute($s)) {
                     echo "<div style='color:white; background-color:green; padding:10px;'>تمت إضافة السجل بنجاح!</div>";
                 } else {
                     echo "<div style='color:white; background-color:red; padding:10px;'>فشل في تنفيذ الاستعلام.</div>";
                 }
 
-                mysqli_stmt_close($stmt);
+                mysqli_stmt_close($s);
             } else {
                 echo "<div style='color:white; background-color:red; padding:10px;'>فشل في تجهيز الاستعلام.</div>";
             }
@@ -47,7 +51,7 @@ if (!$link) {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-    mysqli_close($link);
+    mysqli_close($l);
 }
 ?>
 <!DOCTYPE html>
@@ -57,6 +61,7 @@ if (!$link) {
     <title>إدخال بيانات الطالب</title>
 </head>
 <style>
+
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f4f7f6;
@@ -164,11 +169,12 @@ button[type="reset"]:hover {
         <label>المادة:</label><br>
         <select name="course_id" required>
             <option value="" disabled selected></option>
-        
+
             <?php
-            if (!empty($courses)) {
-                foreach ($courses as $course) {
-                    echo "<option value='" . $course['course_id'] . "'>" . htmlspecialchars($course['course_name']) . "</option>";
+   
+            if (!empty($cs)) {
+                foreach ($cs as $c) {
+                    echo "<option value='" . $c['course_id'] . "'>" . htmlspecialchars($c['course_name']) . "</option>";
                 }
             } else {
                 echo "<option disabled>لا توجد مواد</option>";
@@ -182,5 +188,3 @@ button[type="reset"]:hover {
     </form>
 </body>
 </html>
-
-
